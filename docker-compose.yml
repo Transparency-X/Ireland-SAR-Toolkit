@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  sar-toolkit:
+    build: .
+    volumes:
+      - ./output:/app/output
+      - ./forensic:/app/forensic
+      - ./responses:/app/responses
+      - ./tracking:/app/tracking
+      - ./config:/app/config:ro
+    environment:
+      - USER=${USER}
+    command: bash

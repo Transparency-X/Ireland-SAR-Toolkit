@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ireland-sar-toolkit"
+version = "2.1.0"
+description = "Forensic SAR Toolkit for Ireland"
+authors = [{name = "Your Name", email = "your.email@example.com"}]
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Legal Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "blake3>=0.3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/your-org/ireland-sar-toolkit"
+Documentation = "https://github.com/your-org/ireland-sar-toolkit#readme"
+Repository = "https://github.com/your-org/ireland-sar-toolkit.git"
+Issues = "https://github.com/your-org/ireland-sar-toolkit/issues"
+
+[project.scripts]
+sar-generate = "scripts.generate_sar:main"
+sar-hash = "scripts.hash_responses:main"
+sar-export = "scripts.export_tracker_md:csv_to_md"
+sar-ics = "scripts.ics_generator:generate_ics"
+sar-complaint = "scripts.dpc_complaint_drafter:draft_complaints"
+sar-redact = "scripts.redact:redact_file"

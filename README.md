@@ -1,4 +1,5 @@
-# Ireland SAR Toolkit 🇮🇪
+# Ireland SAR Toolkit v2.1
+
 > A forensic-grade toolkit for executing Subject Access Requests (SARs) under GDPR and the Data Protection Act 2018 against Irish government departments, state agencies, and public bodies.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -7,89 +8,136 @@
 
 ---
 
-## Overview
+## ⚠️ Security Warning
 
-There is **no central database** for personal data held by the Irish State.  
-This repository provides verified DPO contacts, request templates, tracking tools, and evidentiary protocols to systematically extract your data from birth to present across all relevant controllers.
-
-**Status:** Active development  
-**Jurisdiction:** Republic of Ireland (ROI)  
-**Legal Basis:** Article 15 GDPR, Section 91 Data Protection Act 2018, Part 3 LED (An Garda Síochána)
+> **Never commit `config/my_details.json` or any PII to version control.**
+> Run this toolkit **only on a local, encrypted machine**. Avoid cloud IDEs (GitHub Codespaces, Replit).
 
 ---
 
-## Features
+## Setup
 
-### Current (v1.0)
-| Feature | Description |
-|---|---|
-| **Verified DPO Directory** | Current contact details for 10+ government departments and agencies |
-| **Agency-Specific Templates** | Tailored SAR letters for Gardaí (F20), Justice, HSE, DSP, Tusla, Revenue, Local Authorities |
-| **LED Compliance** | Correct protocol for law enforcement data (An Garda Síochána) under Part 3 DPA 2018 |
-| **FOI Crossover Guide** | When to use SAR vs. Freedom of Information Act 2014 |
-| **Deadline Tracker** | Markdown/CSV tracking sheet with statutory deadlines and escalation triggers |
-| **Evidentiary Protocol** | SHA-256 hashing, PDF/A archival, chain-of-custody indexing for legal proceedings |
-| **Escalation Templates** | Day-14 reminder letters and DPC complaint drafts |
+### 1. Clone or Download
+```bash
+git clone <repository-url>
+cd ireland-sar-toolkit
+```
+
+### 2. Run Setup Script
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+### 3. Configure Your Details
+```bash
+# Edit with your personal details
+nano config/my_details.json
+```
+
+### 4. (Optional) Install Blake3 for Faster Hashing
+```bash
+pip install blake3
+```
+
+---
+
+## Usage
+
+### List Available Agencies
+```bash
+python scripts/generate_sar.py --list-agencies
+```
+
+### Generate SAR Letters
+```bash
+# Single agency
+python scripts/generate_sar.py --agency Dept_of_Justice --output output/ --custodian "Your Name"
+
+# All agencies
+python scripts/generate_sar.py --all --output output/ --custodian "Your Name"
+
+# Dry run (preview only)
+python scripts/generate_sar.py --all --dry-run
+```
+
+### Hash Responses for Forensic Integrity
+```bash
+# Scan and index responses
+python scripts/hash_responses.py --scan responses/ --custodian "Your Name" --output forensic/
+
+# Verify hashes later
+python scripts/hash_responses.py --verify forensic/evidence_index_YYYYMMDD.csv
+```
+
+### Export Tracker to Obsidian
+```bash
+python scripts/export_tracker_md.py tracking/sar_tracker.csv output/obsidian_tracker.md
+```
+
+### Generate Calendar Reminders
+```bash
+python scripts/ics_generator.py tracking/sar_tracker.csv output/
+```
+
+### Draft DPC Complaints
+```bash
+python scripts/dpc_complaint_drafter.py tracking/sar_tracker.csv "Your Name" output/
+```
+
+### Redact PII from Shared Documents
+```bash
+python scripts/redact.py input.md output_redacted.md
+```
 
 ---
 
 ## Directory Structure
-
 ```
 ireland-sar-toolkit/
+├── .gitignore
+├── .dockerignore
 ├── README.md
 ├── LICENSE
+├── pytest.ini
+├── config/
+│   ├── my_details_template.json
+│   └── schema.json
 ├── docs/
-│   ├── legal_basis.md              # GDPR Art 15, DPA 2018, LED analysis
-│   ├── foi_vs_sar.md               # Strategic comparison
-│   └── redaction_guide.md          # How to challenge unlawful redactions
+│   ├── legal_basis.md
+│   ├── foi_vs_sar.md
+│   └── opsec_protocol.md
 ├── templates/
-│   ├── generic_sar.md              # Master template for any department
-│   ├── garda_f20.md                # An Garda Síochána F20 guidance
-│   ├── justice_sar.md              # Dept of Justice (immigration + general)
-│   ├── hse_sar.md                  # HSE central + hospital-specific
-│   ├── dsp_sar.md                  # Dept of Social Protection
-│   ├── tusla_sar.md                # Tusla Child and Family Agency
-│   ├── revenue_sar.md              # Revenue Commissioners
-│   └── local_authority_sar.md      # Template for county/city councils
-├── tracking/
-│   ├── sar_tracker.csv             # Master tracking spreadsheet
-│   └── sar_tracker_template.md     # Printable markdown version
-├── escalation/
-│   ├── day_14_reminder.md
-│   ├── day_30_dpc_complaint.md
+│   ├── generic_sar.md
+│   ├── garda_f20.md
+│   ├── justice_sar.md
+│   ├── hse_sar.md
+│   ├── dsp_sar.md
+│   ├── tusla_sar.md
+│   ├── revenue_sar.md
 │   └── dpc_complaint_template.md
-└── forensic/
-    ├── evidence_protocol.md        # Scanning, hashing, indexing SOP
-    └── index_template.csv          # Document index with SHA-256 column
+├── tracking/
+│   └── sar_tracker_template.csv
+├── scripts/
+│   ├── generate_sar.py
+│   ├── hash_responses.py
+│   ├── export_tracker_md.py
+│   ├── ics_generator.py
+│   ├── dpc_complaint_drafter.py
+│   └── redact.py
+├── tests/
+│   ├── __init__.py
+│   ├── test_generate_sar.py
+│   ├── test_hash_responses.py
+│   ├── test_export_tracker_md.py
+│   ├── test_ics_generator.py
+│   └── test_dpc_complaint_drafter.py
+├── requirements.txt
+├── pyproject.toml
+├── setup.sh
+├── Dockerfile
+└── docker-compose.yml
 ```
-
----
-
-## Quick Start
-
-### 1. Prepare Your Identity Kit
-Before sending any request, gather:
-- Current passport or driving licence (photocopy)
-- Utility bill dated within last 6 months
-- List of **all previous Irish addresses** with dates
-- Your PPS Number
-
-### 2. Select Your Targets
-Use the [DPO Directory](#master-dpo-directory) below to identify which bodies hold your data.
-
-### 3. Send Requests
-- **An Garda Síochána:** Complete the [F20 form](https://www.garda.ie/en/about-us/our-departments/offices-of-the-garda-commissioner/data-protection-unit/) and post to Capel Street.
-- **All others:** Use the relevant template from `/templates/` and email or post to the DPO.
-
-### 4. Track & Escalate
-Import `/tracking/sar_tracker.csv` into your preferred spreadsheet app. Set calendar reminders for:
-- **Day 14:** Send reminder if no acknowledgement
-- **Day 30:** Deadline for response (or notification of extension)
-- **Day 90:** Final deadline if extension invoked
-
-### 5. Handle Responses Forensically
-Follow `/forensic/evidence_protocol.md` to scan, hash, and index all responses.
 
 ---
 
@@ -101,88 +149,36 @@ Follow `/forensic/evidence_protocol.md` to scan, hash, and index all responses.
 | **Dept of Justice** | Immigration, citizenship, prison policy | dataprotectioncompliance@justice.ie | DPO, 51 St Stephen's Green, Dublin 2, D02 HK52 | Immigration: also subjectaccessrequests@justice.ie |
 | **Dept of Social Protection** | PPSN, welfare, child benefit, Intreo | dpo@welfare.ie | DPO, Goldsmith House, Pearse Street, Dublin 2, D02 YY17 |  |
 | **HSE (Central)** | National health records, vaccination | dpo@hse.ie | National Data Protection Office, Dr Steevens Hospital, Steevens Lane, Dublin 8, D08 W2A8 | Apply to specific hospitals directly for their records |
-| **Tusla** | Child protection, foster care, state care | See [tusla.ie/data-protection](https://www.tusla.ie) | — | Historical records may be in National Archives |
-| **Dept of Education** | School records, state exams, SEN | See [gov.ie/education](https://www.gov.ie) | — | CAO holds separate third-level data |
-| **Revenue Commissioners** | Tax records, PAYE, VAT, customs | See [revenue.ie](https://www.revenue.ie) | — | PPSN + tax ref required |
+| **Tusla** | Child protection, foster care, state care | See tusla.ie/data-protection | — | Historical records may be in National Archives |
+| **Dept of Education** | School records, state exams, SEN | See gov.ie/education | — | CAO holds separate third-level data |
+| **Revenue Commissioners** | Tax records, PAYE, VAT, customs | See revenue.ie | — | PPSN + tax ref required |
 | **Local Authority** | Housing, planning, social housing | Search "[County] Council data protection officer" | — | Varies by council |
-| **Irish Prison Service** | Prison records, detention data | Via Dept of Justice or [irishprisons.ie](https://www.irishprisons.ie) | — | If applicable |
-| **Property Registration Authority** | Property ownership, titles | See [pra.ie](https://www.pra.ie) | — | Residential history verification |
 
 ---
 
 ## Legal Basis Summary
 
-| Regulation | Applies To | Key Right | Exemptions |
+| Regulation | Applies To | Key Right | Response Time |
 |---|---|---|---|
-| **GDPR Article 15** | Most public/private bodies | Right of access to personal data | Manifestly unfounded/excessive requests |
-| **Data Protection Act 2018 (Part 2)** | Standard processing in Ireland | Implements GDPR | As per GDPR |
-| **Data Protection Act 2018 (Part 3)** | An Garda Síochána law enforcement data | Modified right of access | Broader: ongoing investigations, national security, endangerment |
-| **FOI Act 2014** | Public bodies | Access to any recorded information | Personal info of others, deliberative processes |
+| **GDPR Article 15** | Most controllers | Right of access to personal data | 1 month (+2 months extension) |
+| **DPA 2018 (Part 2)** | Standard processing in Ireland | Implements GDPR | As per GDPR |
+| **DPA 2018 (Part 3)** | An Garda Síochána law enforcement | Modified right of access | 1 month (broader exemptions) |
+| **FOI Act 2014** | Public bodies | Access to any recorded information | 20 working days |
 
 ---
 
-## Roadmap
-
-### v1.1 — Template Expansion (Q2 2026)
-- [ ] Add templates for **CAO**, **Land Registry**, **National Archives**, and **RTB** (Residential Tenancies Board)
-- [ ] Add **Northern Ireland crossover guide** (UK GDPR / DPA 2018 UK) for cross-border residents
-- [ ] Add **Irish language (Gaeilge) versions** of all templates
-- [ ] Add **plain English** simplified templates for accessibility
-
-### v1.2 — Automation Tools (Q3 2026)
-- [ ] Python script: `generate_sar.py` — CLI tool to auto-populate templates from a JSON config
-- [ ] Python script: `hash_responses.py` — Batch SHA-256 hashing and indexing of scanned PDFs
-- [ ] CSV-to-ICS converter: Generate calendar reminders from `sar_tracker.csv`
-- [ ] Markdown-to-PDF renderer for all templates
-
-### v1.3 — Tracking & Dashboard (Q4 2026)
-- [ ] Streamlit dashboard for visual SAR campaign management
-- [ ] Deadline countdown with auto-escalation flagging
-- [ ] Document upload portal with automatic hashing
-- [ ] Export to Obsidian-compatible markdown for personal knowledge management
-
-### v2.0 — Jurisdiction Expansion (2027)
-- [ ] **UK module:** England & Wales, Scotland, Northern Ireland SAR protocols
-- [ ] **EU module:** Template for cross-border SARs (Art 15 + Art 56 GDPR)
-- [ ] **FOI module:** Dedicated FOI request templates and tracking for Irish public bodies
-
-### v2.1 — Legal Intelligence (2027)
-- [ ] DPC decision tracker: Database of published DPC SAR-related determinations
-- [ ] Redaction challenge guide: Template letters to challenge excessive redactions
-- [ ] Judicial review primer: When and how to escalate to the High Court
-
-### v3.0 — Forensic Integration (Future)
-- [ ] Integration with chain-of-custody logging standards
-- [ ] Timestamped evidence packaging (RFC 3161 timestamping)
-- [ ] Automated correlation mapping across multiple agency responses
-- [ ] Export to legal brief format (Law Society / FLAC compatible)
-
----
-
-## Contributing
-
-Contributions welcome. Priority areas:
-- Verified DPO contact updates
-- New agency templates
-- Legal accuracy reviews
-- Translation to Irish (Gaeilge)
-
-Please open an issue before submitting major changes.
-
----
-
-## Disclaimer
-
-This toolkit is provided for **informational and educational purposes** only. It does not constitute legal advice. For complex cases involving criminal records, immigration status, or litigation, consult a solicitor or contact **FLAC** (Free Legal Advice Centres) at [flac.ie](https://www.flac.ie).
+## OPSEC Protocol
+1. **Never commit PII** to version control.
+2. **Run locally only** (no cloud IDEs).
+3. **Encrypt at rest** (LUKS, FileVault, VeraCrypt).
+4. **Verify hashes** before sharing files.
+5. **Use `redact.py`** to strip PII from documents before sharing.
 
 ---
 
 ## License
-
 MIT License — See [LICENSE](LICENSE) for details.
 
----
-
-**Maintained by:** Transparency-X  
-**Last Updated:** May 2026  
-**Data Protection Commission:** [dataprotection.ie](https://dataprotection.ie) | 21 Fitzwilliam Square South, Dublin 2, D02 RD28
+**Maintained by:** [Your Name / Organisation]
+**Last Updated:** May 2026
+**DPC:** [dataprotection.ie](https://dataprotection.ie) | 21 Fitzwilliam Square South, Dublin 2, D02 RD28

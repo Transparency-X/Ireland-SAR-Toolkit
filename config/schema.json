@@ -1,0 +1,8 @@
+{
+  "required": ["full_name", "dob", "current_address", "email"],
+  "patterns": {
+    "dob": "^\d{2}/\d{2}/\d{4}$",
+    "ppsn": "^\d{7}[A-Z]{1,2}$",
+    "email": "^[^@\s]+@[^@\s]+\.[^@\s]+$"
+  }
+}

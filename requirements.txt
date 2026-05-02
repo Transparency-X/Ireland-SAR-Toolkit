@@ -1,0 +1,5 @@
+# Ireland SAR Toolkit v2.1
+# Core dependencies (optional enhancements below)
+
+# Fast hashing (optional but recommended)
+blake3>=0.3.0
