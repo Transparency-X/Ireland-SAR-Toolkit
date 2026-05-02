@@ -88,20 +88,36 @@ def hash_file(path):
 
 
 def discover_agencies():
+    """Discover all agency templates in the templates directory.
+
+    Matches files ending in _sar.md (standard SAR templates) or _f20.md
+    (An Garda Siochana F20 form variant).
+    """
     agencies = []
     if not os.path.exists(TEMPLATE_DIR):
         return agencies
     for f in sorted(os.listdir(TEMPLATE_DIR)):
-        if f.endswith("_sar.md"):
-            agencies.append(f.replace("_sar.md", ""))
+        if f.endswith("_sar.md") or f.endswith("_f20.md"):
+            # Strip the suffix to get the agency key
+            if f.endswith("_sar.md"):
+                agencies.append(f.replace("_sar.md", ""))
+            else:
+                agencies.append(f.replace("_f20.md", ""))
     return agencies
 
 
 def generate(agency, user_data, out_dir, dry_run=False):
-    agency_file = os.path.join(TEMPLATE_DIR, f"{agency}_sar.md")
+    # Check for agency-specific template (either _sar.md or _f20.md variant)
+    agency_file_sar = os.path.join(TEMPLATE_DIR, f"{agency}_sar.md")
+    agency_file_f20 = os.path.join(TEMPLATE_DIR, f"{agency}_f20.md")
     generic_file = os.path.join(TEMPLATE_DIR, "generic_sar.md")
 
-    template_path = agency_file if os.path.exists(agency_file) else generic_file
+    if os.path.exists(agency_file_f20):
+        template_path = agency_file_f20
+    elif os.path.exists(agency_file_sar):
+        template_path = agency_file_sar
+    else:
+        template_path = generic_file
     if not os.path.exists(template_path):
         log(f"ERROR: No template found for {agency}")
         return None
