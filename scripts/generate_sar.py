@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-generate_sar.py v2.1
+generate_sar.py v2.1.1
 Generates agency-specific SAR letters with validation, logging, and forensic hashing.
 
 Usage:
@@ -37,10 +37,32 @@ def log(msg):
 
 def load_config():
     if not os.path.exists(CONFIG_FILE):
-        log(f"ERROR: {CONFIG_FILE} not found. Copy from my_details_template.json and fill.")
+        log(f"ERROR: {CONFIG_FILE} not found.")
+        print("\n>>> SETUP REQUIRED <<<")
+        print("1. Copy the template:  cp config/my_details_template.json config/my_details.json")
+        print("2. Edit the file:      nano config/my_details.json")
+        print("3. Fill in your personal details (name, DOB, address, email, etc.)")
+        print("4. Ensure valid JSON:  all strings quoted, commas between items, no trailing commas\n")
         sys.exit(1)
-    with open(CONFIG_FILE, "r") as f:
-        return json.load(f)
+
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        log(f"ERROR: {CONFIG_FILE} contains invalid JSON.")
+        print(f"\n>>> JSON SYNTAX ERROR in {CONFIG_FILE} <<<")
+        print(f"Location: line {e.lineno}, column {e.colno}")
+        print(f"Details:  {e.msg}")
+        print(f"\nCommon fixes:")
+        print("  - Ensure all strings use double quotes (\"name\") not single quotes")
+        print("  - Add commas between each field, but NO comma after the last field")
+        print("  - Do not leave trailing commas before closing } brackets")
+        print("  - Validate online: https://jsonlint.com/")
+        print(f"\nRun this to see the file:  cat {CONFIG_FILE}\n")
+        sys.exit(1)
+    except Exception as e:
+        log(f"ERROR: Could not read {CONFIG_FILE}: {e}")
+        sys.exit(1)
 
 
 def validate_config(data):
@@ -48,6 +70,10 @@ def validate_config(data):
     missing = [f for f in required if not data.get(f)]
     if missing:
         log(f"ERROR: Missing required fields: {', '.join(missing)}")
+        print(f"\n>>> MISSING REQUIRED FIELDS in {CONFIG_FILE} <<<")
+        print(f"Required: {', '.join(required)}")
+        print(f"Missing:  {', '.join(missing)}")
+        print("\nPlease fill in all required fields and try again.\n")
         sys.exit(1)
     if not re.match(r"^\d{2}/\d{2}/\d{4}$", data.get("dob", "")):
         log("WARNING: DOB format should be DD/MM/YYYY")
