@@ -16,6 +16,12 @@
 
 ---
 
+## Components
+
+| Component | Repo Link |
+|---|---|
+|SAR-ROI-Law-Enforcment|https://github.com/Transparency-X/SAR-ROI-Law-Enforcment
+
 ## The Problem
 
 Ireland has **no central citizen data portal**. If you want to know what the State knows about you — from your Garda PULSE record to your HSE medical history, from your DSP welfare file to your Revenue tax data — you must:
